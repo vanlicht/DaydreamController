@@ -24,24 +24,41 @@ using System.Collections;
 /// The laser visual is important to help users locate their cursor
 /// when its not directly in their field of view.
 [RequireComponent(typeof(LineRenderer))]
-public class GvrLaserPointer : GvrBasePointer {
+public class GvrLaserPointer : GvrBasePointer
+{
+    //Thomas
+    #region Thomas public variables
+    #endregion
 
-  /// Small offset to prevent z-fighting of the reticle (meters).
-  private const float Z_OFFSET_EPSILON = 0.1f;
+    #region Thomas private variables
+    string laserTag;
+    string tagTeleport = "Teleport";
+    string tagOcclusion = "Occlusion";
+    string tagUntagged = "Untagged";
+    string tagInteraction = "Interaction";
+    #endregion
 
-  /// Size of the reticle in meters as seen from 1 meter.
-  private const float RETICLE_SIZE = 0.01f;
 
-  private LineRenderer lineRenderer;
-  private bool isPointerIntersecting;
-  private Vector3 pointerIntersection;
-  private Ray pointerIntersectionRay;
+    /// Small offset to prevent z-fighting of the reticle (meters).
+    private const float Z_OFFSET_EPSILON = 0.1f;
 
-  /// Color of the laser pointer including alpha transparency
-  public Color laserColor = new Color(1.0f, 1.0f, 1.0f, 0.25f);
+    /// Size of the reticle in meters as seen from 1 meter.
+    private const float RETICLE_SIZE = 0.01f;
 
-  /// Maximum distance of the pointer (meters).
-  [Range(0.0f, 10.0f)]
+    private LineRenderer lineRenderer;
+    private bool isPointerIntersecting;
+    private Vector3 pointerIntersection;
+    private Ray pointerIntersectionRay;
+
+    /// Color of the laser pointer including alpha transparency
+    Color laserColor;
+    public Color laserColorDefault = new Color(1.0f, 1.0f, 1.0f, 0.25f);
+    public Color laserColorTeleport;
+    public Color laserColorInteraction;
+    public Color laserColorOcclusion;
+
+    /// Maximum distance of the pointer (meters).
+    [Range(0.0f, 10.0f)]
   public float maxLaserDistance = 0.75f;
 
   /// Maximum distance of the reticle (meters).
@@ -50,39 +67,67 @@ public class GvrLaserPointer : GvrBasePointer {
 
   public GameObject reticle;
 
-  void Awake() {
-    lineRenderer = gameObject.GetComponent<LineRenderer>();
-  }
-
-  void LateUpdate() {
-    // Set the reticle's position and scale
-    if (reticle != null) {
-      if (isPointerIntersecting) {
-        Vector3 difference = pointerIntersection - pointerIntersectionRay.origin;
-        Vector3 clampedDifference = Vector3.ClampMagnitude(difference, maxReticleDistance);
-        Vector3 clampedPosition = pointerIntersectionRay.origin + clampedDifference;
-        reticle.transform.position = clampedPosition;
-      } else {
-        reticle.transform.localPosition = new Vector3(0, 0, maxReticleDistance);
-      }
-
-      float reticleDistanceFromCamera = (reticle.transform.position - Camera.main.transform.position).magnitude;
-      float scale = RETICLE_SIZE * reticleDistanceFromCamera;
-      reticle.transform.localScale = new Vector3(scale, scale, scale);
+    void Awake()
+    {
+        lineRenderer = gameObject.GetComponent<LineRenderer>();
     }
 
-    // Set the line renderer positions.
-    lineRenderer.SetPosition(0, transform.position);
-    Vector3 lineEndPoint =
-      isPointerIntersecting && Vector3.Distance(transform.position, pointerIntersection) < maxLaserDistance ?
-      pointerIntersection :
-      transform.position + (transform.forward * maxLaserDistance);
-    lineRenderer.SetPosition(1, lineEndPoint);
+    void LateUpdate()
+    {
+        // Set the reticle's position and scale
+        if (reticle != null)
+        {
+            if (isPointerIntersecting)
+            {
+                Vector3 difference = pointerIntersection - pointerIntersectionRay.origin;
+                Vector3 clampedDifference = Vector3.ClampMagnitude(difference, maxReticleDistance);
+                Vector3 clampedPosition = pointerIntersectionRay.origin + clampedDifference;
+                reticle.transform.position = clampedPosition;
+            }
+            else
+            {
+                reticle.transform.localPosition = new Vector3(0, 0, maxReticleDistance);
+            }
 
-    // Adjust transparency
-    float alpha = GvrArmModel.Instance.alphaValue;
-    lineRenderer.SetColors(Color.Lerp(Color.clear, laserColor, alpha), Color.clear);
-  }
+              float reticleDistanceFromCamera = (reticle.transform.position - Camera.main.transform.position).magnitude;
+              float scale = RETICLE_SIZE * reticleDistanceFromCamera;
+              reticle.transform.localScale = new Vector3(scale, scale, scale);
+         }
+
+        // Set the line renderer positions.
+        lineRenderer.SetPosition(0, transform.position);
+        Vector3 lineEndPoint =
+              isPointerIntersecting && Vector3.Distance(transform.position, pointerIntersection) < maxLaserDistance ?
+              pointerIntersection :
+              transform.position + (transform.forward * maxLaserDistance);
+        lineRenderer.SetPosition(1, lineEndPoint);
+
+        // Adjust transparency
+        float alpha = GvrArmModel.Instance.alphaValue;
+
+        //Thomas: Laser Color based on what it hits
+        if(laserTag == tagTeleport)
+        {
+            laserColor = laserColorTeleport;
+        }
+        else if (laserTag == tagInteraction)
+        {
+            laserColor = laserColorInteraction;
+        }
+        else if (laserTag == tagOcclusion)
+        {
+            laserColor = laserColorOcclusion;
+        }
+        else if((laserTag == tagUntagged))
+        {
+            laserColor = laserColorDefault;
+        }
+        else
+        {
+            laserColor = laserColorDefault;
+        }
+        lineRenderer.SetColors(Color.Lerp(Color.clear, laserColor, alpha), Color.clear);
+      }
 
   public override void OnInputModuleEnabled() {
     if (lineRenderer != null) {
@@ -96,12 +141,15 @@ public class GvrLaserPointer : GvrBasePointer {
     }
   }
 
-  public override void OnPointerEnter(GameObject targetObject, Vector3 intersectionPosition,
-      Ray intersectionRay, bool isInteractive) {
-    pointerIntersection = intersectionPosition;
-    pointerIntersectionRay = intersectionRay;
-    isPointerIntersecting = true;
-  }
+    public override void OnPointerEnter(GameObject targetObject, Vector3 intersectionPosition, Ray intersectionRay, bool isInteractive)
+    {
+        pointerIntersection = intersectionPosition;
+        pointerIntersectionRay = intersectionRay;
+        isPointerIntersecting = true;
+
+        //Thomas: Tag of the objects being hit
+        laserTag = targetObject.tag;
+      }
 
   public override void OnPointerHover(GameObject targetObject, Vector3 intersectionPosition,
       Ray intersectionRay, bool isInteractive) {
