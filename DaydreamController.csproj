@@ -155,6 +155,8 @@
     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrIntent.cs" />
     <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
     <Compile Include="Assets\Thomas\Scripts\tShowObject.cs" />
+    <Compile Include="Assets\Thomas\Scripts\tTouchPadSimple.cs" />
+    <Compile Include="Assets\Thomas\Scripts\tTouchTracking.cs" />
     <Compile Include="Assets\Thomas\Scripts\tVRMode.cs" />
   </ItemGroup>
   <ItemGroup>
