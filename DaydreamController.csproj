@@ -64,6 +64,18 @@
     <Reference Include="Google.ProtocolBuffers">
       <HintPath>Assets\Plugins\Google.ProtocolBuffers.dll</HintPath>
     </Reference>
+    <Reference Include="DOTween43">
+      <HintPath>Assets\DOTween\DOTween43.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>Assets\DOTween\DOTween46.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>Assets\DOTween\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween50">
+      <HintPath>Assets\DOTween\DOTween50.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\GoogleVR\Demos\Scripts\DemoInputManager.cs" />
@@ -155,11 +167,21 @@
     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrIntent.cs" />
     <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
     <Compile Include="Assets\Thomas\Scripts\tShowObject.cs" />
+    <Compile Include="Assets\Thomas\Scripts\tTiltStyle.cs" />
     <Compile Include="Assets\Thomas\Scripts\tTouchPadSimple.cs" />
     <Compile Include="Assets\Thomas\Scripts\tTouchTracking.cs" />
     <Compile Include="Assets\Thomas\Scripts\tVRMode.cs" />
+    <Compile Include="Assets\TiltbrushStyle\BallRotationController.cs" />
+    <Compile Include="Assets\TiltbrushStyle\ControllerManagerScript.cs" />
+    <Compile Include="Assets\TiltbrushStyle\ElbowModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\DOTween\DOTween.XML" />
+    <None Include="Assets\DOTween\DOTween43.xml" />
+    <None Include="Assets\DOTween\DOTween46.xml" />
+    <None Include="Assets\DOTween\DOTween50.xml" />
+    <None Include="Assets\DOTween\Editor\DOTweenEditor.XML" />
+    <None Include="Assets\DOTween\readme.txt" />
     <None Include="Assets\GoogleVR\Demos\Environment\DemoEnvUnlitGrayscale.shader" />
     <None Include="Assets\GoogleVR\Demos\Shaders\GVRDemo\GVRDemoAmbientOcclusion.shader" />
     <None Include="Assets\GoogleVR\Demos\Shaders\GVRDemo\GVRDemoUnlitGrayscaleToColor.shader" />

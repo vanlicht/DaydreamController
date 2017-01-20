@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Thomas/Scenes/scene/scene.unity
+- path: Assets/GoogleVR/Demos/Scenes/ScrollingUIDemo.unity
   isLoaded: 1
   isActive: 1

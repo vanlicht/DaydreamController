@@ -192,17 +192,21 @@ public class PagedScrollRect : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
   /// Returns the amount that the
   /// rect has been scrolled in local coordinates.
-  public float ScrollOffset {
-    get {
-      return scrollOffset;
+  public float ScrollOffset
+    {
+        get
+        {
+            return scrollOffset;
+        }
+        private set
+        {
+            if (value != ScrollOffset)
+            {
+                scrollOffset = value;
+                OnScrolled();
+            }
+        }
     }
-    private set {
-      if (value != ScrollOffset) {
-        scrollOffset = value;
-        OnScrolled();
-      }
-    }
-  }
 
   /// Returns true if scrolling is currently allowed
   public bool CanScroll {
@@ -299,48 +303,60 @@ public class PagedScrollRect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
   }
 
-  void Update() {
-    if (!CanScroll) {
-      return;
-    }
+  void Update()
+    {
+    if (!CanScroll)
+        {
+            return;
+        }
 
     /// Don't start scrolling until the touch pos has moved.
     /// This is to prevent scrolling when the user intended to click.
-    if (!isScrolling && GvrController.IsTouching) {
-      if (!isTrackingTouches) {
-        StartTouchTracking();
-      } else {
-        Vector2 touchDelta = GvrController.TouchPos - initialTouchPos;
-        float xDeltaMagnitude = Mathf.Abs(touchDelta.x);
-        float yDeltaMagnitude = Mathf.Abs(touchDelta.y);
+    if (!isScrolling && GvrController.IsTouching)
+        {
+            if (!isTrackingTouches)
+                {
+                    StartTouchTracking();
+                }
+            else
+            {
+                Vector2 touchDelta = GvrController.TouchPos - initialTouchPos;
+                float xDeltaMagnitude = Mathf.Abs(touchDelta.x);
+                float yDeltaMagnitude = Mathf.Abs(touchDelta.y);
 
-        if (xDeltaMagnitude > kClickThreshold && xDeltaMagnitude > yDeltaMagnitude) {
-          StartScrolling();
+                if (xDeltaMagnitude > kClickThreshold && xDeltaMagnitude > yDeltaMagnitude)
+                    {
+                        StartScrolling();
+                    }
+            }
         }
-      }
+
+    if (isScrolling && GvrController.IsTouching)
+        {
+          Vector2 touchDelta = GvrController.TouchPos - previousTouchPos;
+
+          if (Mathf.Abs(touchDelta.x) > 0)
+            {
+                // Translate directly based on the touch value.
+                float spacingCoeff = -pageProvider.GetSpacing();
+                targetScrollOffset += touchDelta.x * spacingCoeff * ScrollSensitivity;
+                //Debug.Log("T: " + targetScrollOffset);
+            }
+
+          LerpTowardsOffset(targetScrollOffset);
+        }
+
+    if (GvrController.TouchUp)
+        {
+            StopScrolling();
+            StopTouchTracking();
+        }
+
+    if (isTrackingTouches && GvrController.IsTouching)
+        {
+            TrackTouch();
+        }
     }
-
-    if (isScrolling && GvrController.IsTouching) {
-      Vector2 touchDelta = GvrController.TouchPos - previousTouchPos;
-
-      if (Mathf.Abs(touchDelta.x) > 0) {
-        // Translate directly based on the touch value.
-        float spacingCoeff = -pageProvider.GetSpacing();
-        targetScrollOffset += touchDelta.x * spacingCoeff * ScrollSensitivity;
-      }
-
-      LerpTowardsOffset(targetScrollOffset);
-    }
-
-    if (GvrController.TouchUp) {
-      StopScrolling();
-      StopTouchTracking();
-    }
-
-    if (isTrackingTouches && GvrController.IsTouching) {
-      TrackTouch();
-    }
-  }
 
   private void StartScrolling() {
     if (isScrolling) {
@@ -409,6 +425,7 @@ public class PagedScrollRect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     Vector2 velocity = touchDelta / timeElapsedSeconds;
     float weight = timeElapsedSeconds / (kRc + timeElapsedSeconds);
     overallVelocity = Vector2.Lerp(overallVelocity, velocity, weight);
+        Debug.Log("overallVelocity: " + overallVelocity);
 
     // Update the previous touch
     previousTouchPos = GvrController.TouchPos;
@@ -542,22 +559,27 @@ public class PagedScrollRect : MonoBehaviour, IPointerEnterHandler, IPointerExit
   }
 
   /// Returns false if the ScrollOffset is already the same as the targetOffset.
-  private bool LerpTowardsOffset(float targetOffset) {
-    if (ScrollOffset == targetOffset) {
-      return false;
-    }
+  private bool LerpTowardsOffset(float targetOffset)
+    {
+        if (ScrollOffset == targetOffset)
+        {
+            return false;
+        }
 
-    float diff = Mathf.Abs(ScrollOffset - targetScrollOffset);
-    float threshold = pageProvider.GetSpacing() * kSnapScrollOffsetThresholdCoeff;
-    if (diff < threshold) {
-      ScrollOffset = targetScrollOffset;
-    } else {
-      ScrollOffset = Mathf.Lerp(ScrollOffset, targetOffset, SnapSpeed * Time.deltaTime);
-    }
+        float diff = Mathf.Abs(ScrollOffset - targetScrollOffset);
+        float threshold = pageProvider.GetSpacing() * kSnapScrollOffsetThresholdCoeff;
+        if (diff < threshold)
+        {
+            ScrollOffset = targetScrollOffset;
+        }
+        else
+        {
+            ScrollOffset = Mathf.Lerp(ScrollOffset, targetOffset, SnapSpeed * Time.deltaTime);
+        }
 
-    ScrollOffset = Mathf.Lerp(ScrollOffset, targetOffset, SnapSpeed * Time.deltaTime);
-    return true;
-  }
+        ScrollOffset = Mathf.Lerp(ScrollOffset, targetOffset, SnapSpeed * Time.deltaTime);
+        return true;
+    }
 
   private float OffsetFromIndex(int index) {
     return index * pageProvider.GetSpacing();
