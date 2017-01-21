@@ -425,7 +425,7 @@ public class PagedScrollRect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     Vector2 velocity = touchDelta / timeElapsedSeconds;
     float weight = timeElapsedSeconds / (kRc + timeElapsedSeconds);
     overallVelocity = Vector2.Lerp(overallVelocity, velocity, weight);
-        Debug.Log("overallVelocity: " + overallVelocity);
+    //Debug.Log("RSG: overallVelocity: " + overallVelocity);
 
     // Update the previous touch
     previousTouchPos = GvrController.TouchPos;

@@ -7,7 +7,7 @@ public class tTiltStyle : MonoBehaviour
     public GameObject cubePanel;
 
     bool isTrackingTouches;
-    bool isScrolling;
+    bool isScrolling = false; //scroll to snap? look into it
     private Vector2 initialTouchPos;
     private Vector2 previousTouchPos;
     private float previousTouchTimestamp;
@@ -15,6 +15,9 @@ public class tTiltStyle : MonoBehaviour
     private float kTimestampDeltaThreshold;
     private const float kCuttoffHz = 10.0f;
     private const float kRc = (float)(1.0 / (2.0 * Mathf.PI * kCuttoffHz));
+
+    /// overallVelocity must be greater than the swipe threshold to detect a swipe.
+    private const float kSwipeThreshold = 0.75f;
 
     // Use this for initialization
     void Start () {
