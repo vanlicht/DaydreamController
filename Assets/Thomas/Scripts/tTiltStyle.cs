@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class tTiltStyle : MonoBehaviour
 {
@@ -33,6 +34,7 @@ public class tTiltStyle : MonoBehaviour
         if (GvrController.TouchUp)
         {
             Debug.Log("TouchUp");
+            StopTouchTracking();
         }
 
         if (isTrackingTouches && GvrController.IsTouching)
@@ -65,8 +67,10 @@ public class tTiltStyle : MonoBehaviour
         float weight = timeElapsedSeconds / (kRc + timeElapsedSeconds);
         overallVelocity = Vector2.Lerp(overallVelocity, velocity, weight);
 
-        Debug.Log("overallVelocity: " + overallVelocity.x);
-        // Update the previous touch
+        Debug.Log("T: velocity: " + velocity);
+        //Debug.Log("T: weight: " + weight);
+
+        //Update the previous touch
         previousTouchPos = GvrController.TouchPos;
         previousTouchTimestamp = Time.time;
     }
@@ -77,6 +81,17 @@ public class tTiltStyle : MonoBehaviour
         initialTouchPos = GvrController.TouchPos;
         previousTouchPos = initialTouchPos;
         previousTouchTimestamp = Time.time;
+        overallVelocity = Vector2.zero;
+
+    }
+
+    private void StopTouchTracking()
+    {
+        isTrackingTouches = false;
+        
+        initialTouchPos = Vector2.zero;
+        previousTouchPos = Vector2.zero;
+        previousTouchTimestamp = 0f;
         overallVelocity = Vector2.zero;
     }
 }
