@@ -20,6 +20,9 @@ public class tTiltStyle : MonoBehaviour
     private const float kCuttoffHz = 10.0f;
     private const float kRc = (float)(1.0 / (2.0 * Mathf.PI * kCuttoffHz));
 
+    private Vector3 fintalRot; //for square panel
+    private bool isPanelRotating = false;
+
     private enum SnapDirection
     {
         Left,
@@ -32,31 +35,31 @@ public class tTiltStyle : MonoBehaviour
     {
         if (!isScrolling && GvrController.IsTouching)
         {
-            Debug.Log("A1");
+            //Debug.Log("A1");
             if (!isTrackingTouches)
             {
-                Debug.Log("B1");
+                //Debug.Log("B1");
                 StartTouchTracking();
             }
             else
             {
-                Debug.Log("B2");
+                //Debug.Log("B2: touchPos, initPos:" + GvrController.TouchPos + " : " + initialTouchPos);
                 Vector2 touchDelta = GvrController.TouchPos - initialTouchPos;
                 float xDeltaMagnitude = Mathf.Abs(touchDelta.x);
                 float yDeltaMagnitude = Mathf.Abs(touchDelta.y);
-                //Debug.Log("B2.1 xDeltaMagnitude : kClickThreshold" + xDeltaMagnitude + " : " + kClickThreshold);
+                //Debug.Log("B2.1 xD: yD: kClickThreshold" + xDeltaMagnitude + " : " + yDeltaMagnitude + " : " + kClickThreshold);
                 if (xDeltaMagnitude > kClickThreshold && xDeltaMagnitude > yDeltaMagnitude)
                 {
                     StartScrolling();
-                    Debug.Log("C1");
+                    //Debug.Log("C1");
                 }
             }
         }
         if (isScrolling && GvrController.IsTouching)
         {
-            Debug.Log("A2");
+            //Debug.Log("A2");
             Vector2 touchDelta = GvrController.TouchPos - previousTouchPos;
-            Debug.Log("A2.1: previousTouchPos : touchDelta.x" + previousTouchPos + touchDelta.x);
+            //Debug.Log("A2.1: previousTouchPos : touchDelta.x" + previousTouchPos + touchDelta.x);
             if (Mathf.Abs(touchDelta.x) > 0)
             {
                 //float spacingCoeff = -90f;
@@ -65,13 +68,13 @@ public class tTiltStyle : MonoBehaviour
         }
         if (GvrController.TouchUp)
         {
-            Debug.Log("A3");
+            //Debug.Log("A3");
             StopScrolling();
             StopTouchTracking();
         }
         if (isTrackingTouches && GvrController.IsTouching)
         {
-            Debug.Log("A4");
+            //Debug.Log("A4");
             TrackTouch();
         }
 
@@ -79,7 +82,7 @@ public class tTiltStyle : MonoBehaviour
 
     private void TrackTouch()
     {
-        Debug.Log("Z0");
+        //Debug.Log("Z0");
         if (!isTrackingTouches)
         {
             Debug.LogWarning("StartTouchTracking must be called before touches can be tracked.");
@@ -89,23 +92,23 @@ public class tTiltStyle : MonoBehaviour
         // If the timestamp has not changed, do not update.
         if (timeElapsedSeconds < kTimestampDeltaThreshold)
         {
-            Debug.Log("Z0_1: timestampe has not changed...");
+            //Debug.Log("Z0_1: timestampe has not changed...");
             return;
         }
         // Update velocity
         Vector2 touchDelta = GvrController.TouchPos - previousTouchPos;
         Vector2 velocity = touchDelta / timeElapsedSeconds;
         float weight = timeElapsedSeconds / (kRc + timeElapsedSeconds);
-        Debug.Log("Z0_2 overallVelocity: " + overallVelocity);
+        //Debug.Log("Z0_2 overallVelocity: " + overallVelocity);
         overallVelocity = Vector2.Lerp(overallVelocity, velocity, weight);
-        Debug.Log("Z0_3 overallVelocity: " + overallVelocity);
+        //Debug.Log("Z0_3 overallVelocity: " + overallVelocity);
         previousTouchPos = GvrController.TouchPos;
         previousTouchTimestamp = Time.time;
     }
 
     private void StartScrolling()
     {
-        Debug.Log("Z1");
+        //Debug.Log("Z1");
         if (isScrolling)
         {
             return;
@@ -121,7 +124,7 @@ public class tTiltStyle : MonoBehaviour
 
     private void StopScrolling()
     {
-        Debug.Log("Z2");
+        //Debug.Log("Z2");
         if (!isScrolling)
         {
             return;
@@ -130,12 +133,12 @@ public class tTiltStyle : MonoBehaviour
         if (overallVelocity.x > kSwipeThreshold)
         {
             Debug.Log("Z2 swipe Right");
-            PanelRotate(SnapDirection.Right);
+            OnPanelRotate(SnapDirection.Right);
         }
         else if (overallVelocity.x < -kSwipeThreshold)
         {
             Debug.Log("Z2 swipe Left");
-            PanelRotate(SnapDirection.Left);
+            OnPanelRotate(SnapDirection.Left);
         }
         else
         {
@@ -147,17 +150,17 @@ public class tTiltStyle : MonoBehaviour
 
     private void StartTouchTracking()
     {
-        Debug.Log("Z3");
+        //Debug.Log("Z3");
         isTrackingTouches = true;
-        initialTouchPos = Vector2.zero;
-        previousTouchPos = Vector2.zero;
+        initialTouchPos = GvrController.TouchPos;
+        previousTouchPos = initialTouchPos;
         previousTouchTimestamp = Time.time;
         overallVelocity = Vector2.zero;
     }
 
     private void StopTouchTracking()
     {
-        Debug.Log("Z4");
+        //Debug.Log("Z4");
         isTrackingTouches = false;
         initialTouchPos = Vector2.zero;
         previousTouchPos = Vector2.zero;
@@ -165,33 +168,82 @@ public class tTiltStyle : MonoBehaviour
         overallVelocity = Vector2.zero;
     }
 
+    private void OnPanelRotate(SnapDirection snapDirection)
+    {
+        //check if coroutine already going, if so, kill coroutine, call FinishRotation, start coroutine again
+        if (!isPanelRotating)
+        {
+            StartCoroutine(PanelRotate(snapDirection));
+        }
+        else
+        {
+            return;
+        }
+        
+    }
 
     private IEnumerator PanelRotate(SnapDirection snapDirection)
     {
+        isPanelRotating = true;
         float t = 0;
         Vector3 initialRot = cubePanel.transform.localEulerAngles;
         Vector3 rightRot = initialRot + new Vector3(0, 0, -90f);
         Vector3 leftRot = initialRot + new Vector3(0, 0, 90f);
-
+        
+        //if (snapDirection == SnapDirection.Right)
+        //{
+        //    fintalRot = rightRot;
+        //}
+        //else if (snapDirection == SnapDirection.Left)
+        //{
+        //    rightRot = leftRot;
+        //}
+        //else
+        //{
+        //    yield return null;
+        //}
 
         do
         {
             float curveTime = animCurve.Evaluate(t / animTime);
-            if (snapDirection == SnapDirection.Right)
+
+            switch (snapDirection)
             {
-                cubePanel.transform.localEulerAngles = Vector3.Lerp(initialRot, rightRot, curveTime);
+                case SnapDirection.Right:
+                    cubePanel.transform.localEulerAngles = Vector3.Lerp(initialRot, rightRot, curveTime);
+                    fintalRot = rightRot;
+                    break;
+                case SnapDirection.Left:
+                    cubePanel.transform.localEulerAngles = Vector3.Lerp(initialRot, leftRot, curveTime);
+                    fintalRot = leftRot;
+                    break;
+                case SnapDirection.Closest:
+                    yield return null;
+                    break;
             }
-            else if (snapDirection == SnapDirection.Left)
-            {
-                cubePanel.transform.localEulerAngles = Vector3.Lerp(initialRot, leftRot, curveTime);
-            }
-            else
-            {
-                yield return null;
-            }
+            //if (snapDirection == SnapDirection.Right)
+            //{
+            //    cubePanel.transform.localEulerAngles = Vector3.Lerp(initialRot, rightRot, curveTime);
+            //}
+            //else if (snapDirection == SnapDirection.Left)
+            //{
+            //    cubePanel.transform.localEulerAngles = Vector3.Lerp(initialRot, leftRot, curveTime);
+            //}
+            //else
+            //{
+            //    yield return null;
+            //}
 
             t += Time.deltaTime;
             yield return null;
         } while (t < animTime);
+        FinishRotation();
+        isPanelRotating = false;
+        
+    }
+
+    private void FinishRotation()
+    {
+        cubePanel.transform.localEulerAngles = fintalRot;
     }
 }
