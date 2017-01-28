@@ -173,6 +173,7 @@
     <Compile Include="Assets\Thomas\Scripts\tTiltStyle.cs" />
     <Compile Include="Assets\Thomas\Scripts\tVRMode.cs" />
     <Compile Include="Assets\Thomas\Scripts\tWebCam.cs" />
+    <Compile Include="Assets\Thomas\Scripts\test.cs" />
     <Compile Include="Assets\TiltbrushStyle\BallRotationController.cs" />
     <Compile Include="Assets\TiltbrushStyle\ControllerManagerScript.cs" />
     <Compile Include="Assets\TiltbrushStyle\ElbowModel.cs" />

@@ -13,6 +13,7 @@ public class tDrag : MonoBehaviour, IPointerDownHandler //IPointerClickHandler,
     private void Update()
     {
         OnDragging();
+        
     }
 
     public void OnPointerDown(PointerEventData data)
@@ -23,31 +24,27 @@ public class tDrag : MonoBehaviour, IPointerDownHandler //IPointerClickHandler,
             Debug.Log("interactable Object...");
             pointerData.pointerCurrentRaycast.gameObject.GetComponent<Collider>().enabled = false;
             var targetObject = pointerData.pointerCurrentRaycast.gameObject;
-            clone = Instantiate(quadGrid);
+            Vector3 inistantiatePos = pointerData.pointerCurrentRaycast.gameObject.transform.position;
+            clone = (GameObject) Instantiate(quadGrid, inistantiatePos, quadGrid.transform.rotation);
             isDraggable = true;
         }
     }
 
     void OnDragging()
     {
-        
+
+        int layerMask = 1 << 8;
+        RaycastHit hitInfo;
         var headPos = laser.transform.position;
         var gazeDir = laser.transform.forward;
-        RaycastHit hitInfo;
-        int layerMask = LayerMask.GetMask("SnapGridRaycast");
-        if (Physics.Raycast(headPos, gazeDir, out hitInfo, layerMask))
+
+        //Raycast only hit the layer of SnappingGrid
+        if (Physics.Raycast(headPos, gazeDir, out hitInfo, Mathf.Infinity, layerMask))
         {
             Vector3 deltaPos = hitInfo.point;
             if (isDraggable && GvrController.ClickButton) // should change to clickdown
             {
-                if (hitInfo.transform.gameObject.tag == "SnappingGrid")
-                {
-                    this.transform.position = deltaPos;
-                }
-                else
-                {
-                    OnUndraggable();
-                }
+                this.transform.position = deltaPos;
             }
             else
             {
