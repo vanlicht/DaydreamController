@@ -166,10 +166,11 @@
     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrFPS.cs" />
     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrIntent.cs" />
     <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
+    <Compile Include="Assets\Thomas\Scripts\TGvrTeleportation.cs" />
+    <Compile Include="Assets\Thomas\Scripts\tControlDrag.cs" />
+    <Compile Include="Assets\Thomas\Scripts\tDrag.cs" />
     <Compile Include="Assets\Thomas\Scripts\tShowObject.cs" />
     <Compile Include="Assets\Thomas\Scripts\tTiltStyle.cs" />
-    <Compile Include="Assets\Thomas\Scripts\tTouchPadSimple.cs" />
-    <Compile Include="Assets\Thomas\Scripts\tTouchTracking.cs" />
     <Compile Include="Assets\Thomas\Scripts\tVRMode.cs" />
     <Compile Include="Assets\Thomas\Scripts\tWebCam.cs" />
     <Compile Include="Assets\TiltbrushStyle\BallRotationController.cs" />

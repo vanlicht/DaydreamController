@@ -70,6 +70,7 @@ public class Teleport : MonoBehaviour, IGvrGazeResponder
         Vector3 worldPos = pointerData.pointerCurrentRaycast.worldPosition;
         Vector3 playerPos = new Vector3(worldPos.x, player.transform.position.y, worldPos.z);
         player.transform.position = playerPos;
+        Debug.Log(pointerData.pointerCurrentRaycast.gameObject);
     }
 
 
