@@ -25,10 +25,6 @@ public class tDrag : MonoBehaviour, IPointerDownHandler //IPointerClickHandler,
             var targetObject = pointerData.pointerCurrentRaycast.gameObject;
             clone = Instantiate(quadGrid);
             isDraggable = true;
-
-            
-
-
         }
     }
 
@@ -38,22 +34,42 @@ public class tDrag : MonoBehaviour, IPointerDownHandler //IPointerClickHandler,
         var headPos = laser.transform.position;
         var gazeDir = laser.transform.forward;
         RaycastHit hitInfo;
-        if (Physics.Raycast(headPos, gazeDir, out hitInfo))
+        int layerMask = LayerMask.GetMask("SnapGridRaycast");
+        if (Physics.Raycast(headPos, gazeDir, out hitInfo, layerMask))
         {
-            if (hitInfo.transform.gameObject.tag == "SnappingGrid")
+            Vector3 deltaPos = hitInfo.point;
+            if (isDraggable && GvrController.ClickButton) // should change to clickdown
             {
-                Vector3 deltaPos = hitInfo.point;
-                if (isDraggable && GvrController.IsTouching) // should change to clickdown
+                if (hitInfo.transform.gameObject.tag == "SnappingGrid")
                 {
                     this.transform.position = deltaPos;
                 }
-                if(GvrController.IsTouching == false)
+                else
                 {
-                    isDraggable = false;
-                    GetComponent<Collider>().enabled = true;
-                    DestroyImmediate(clone);
+                    OnUndraggable();
                 }
             }
+            else
+            {
+                OnUndraggable();
+            }
+
+            if(GvrController.ClickButtonUp == true ||  GvrController.IsTouching == false)
+            {
+
+                OnUndraggable();
+            }
         }
+        else
+        {
+            OnUndraggable();
+        }
+    }
+
+    void OnUndraggable()
+    {
+        isDraggable = false;
+        GetComponent<Collider>().enabled = true;
+        DestroyImmediate(clone);
     }
 }
